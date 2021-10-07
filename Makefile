@@ -1,7 +1,7 @@
 #/***************************************************************************
 # Dms2deg
 #
-# This plugin converts DMS to deg in table
+# This plugin converts DMS to degree
 #							 -------------------
 #		begin				: 2021-10-07
 #		git sha				: $Format:%H$

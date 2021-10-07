@@ -1,7 +1,7 @@
 Plugin Builder Results
 
 Your plugin Dms2deg was created in:
-    C:/Users/Иван/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/dms2deg\dms_2_deg
+    C:/Users/Иван/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins/dms_2_deg
 
 Your QGIS plugin directory is located at:
     C:/Users/Иван/AppData/Roaming/QGIS/QGIS3/profiles/default/python/plugins

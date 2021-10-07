@@ -30,12 +30,17 @@ __copyright__ = '(C) 2021 by Ivan Lebedev'
 
 __revision__ = '$Format:%H$'
 
-from qgis.PyQt.QtCore import QCoreApplication
+from qgis.PyQt.QtCore import (QCoreApplication, QVariant)
 from qgis.core import (QgsProcessing,
                        QgsFeatureSink,
                        QgsProcessingAlgorithm,
                        QgsProcessingParameterFeatureSource,
-                       QgsProcessingParameterFeatureSink)
+                       QgsProcessingParameterFeatureSink,
+                       QgsProcessingParameterField,
+                       QgsField,
+                       QgsMessageLog,
+                       QgsFeature)
+from .dms_fun import dms2deg
 
 
 class Dms2degAlgorithm(QgsProcessingAlgorithm):
@@ -58,6 +63,8 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
 
     OUTPUT = 'OUTPUT'
     INPUT = 'INPUT'
+    FIELD1 = 'FIELD1'
+    FIELD2 = 'FIELD2'
 
     def initAlgorithm(self, config):
         """
@@ -85,6 +92,17 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
             )
         )
 
+        self.addParameter(QgsProcessingParameterField(self.FIELD1,
+                                                      self.tr('Text attribute to convert to float'),
+                                                      parentLayerParameterName='INPUT',
+                                                      type=QgsProcessingParameterField.String
+                                                      ))
+        self.addParameter(QgsProcessingParameterField(self.FIELD2,
+                                                      self.tr('Text attribute to convert to float'),
+                                                      parentLayerParameterName='INPUT',
+                                                      type=QgsProcessingParameterField.String
+                                                      ))
+
     def processAlgorithm(self, parameters, context, feedback):
         """
         Here is where the processing itself takes place.
@@ -94,21 +112,67 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
         # to uniquely identify the feature sink, and must be included in the
         # dictionary returned by the processAlgorithm function.
         source = self.parameterAsSource(parameters, self.INPUT, context)
-        (sink, dest_id) = self.parameterAsSink(parameters, self.OUTPUT,
-                context, source.fields(), source.wkbType(), source.sourceCrs())
 
-        # Compute the number of steps to display within the progress bar and
-        # get features from source
+        # Names of source fields
+        select_field1 = self.parameterAsString(
+            parameters,
+            self.FIELD1,
+            context)
+        select_field2 = self.parameterAsString(
+            parameters,
+            self.FIELD2,
+            context)
+        feedback.pushInfo('!!!!!!!!!!!!!!!!hi!!!!!!!!!!!!!!!!!!!')
+        # Append a new fields
+        new_fields = source.fields()
+        if select_field1 != select_field2:
+            new_fields.append(QgsField(select_field1 + '_deg', QVariant.Double))
+            new_fields.append(QgsField(select_field2 + '_deg', QVariant.Double))
+            deg1_id = new_fields.indexOf(select_field1 + '_deg')
+            deg2_id = new_fields.indexOf(select_field2 + '_deg')
+        elif select_field1 == select_field2:
+            new_fields.append(QgsField(select_field1 + '_deg', QVariant.Double))
+            deg1_id = new_fields.indexOf(select_field1 + '_deg')
+        else:
+            return {self.OUTPUT: dest_id}
+
+        (sink, dest_id) = self.parameterAsSink(
+            parameters,
+            self.OUTPUT,
+            context,
+            new_fields,
+            source.wkbType(),
+            source.sourceCrs()
+        )
+        # Progress bar
         total = 100.0 / source.featureCount() if source.featureCount() else 0
         features = source.getFeatures()
-
+        # PROCESSING
         for current, feature in enumerate(features):
             # Stop the algorithm if cancel button has been clicked
             if feedback.isCanceled():
                 break
+            # From module dms_fun
+            deg1 = dms2deg(feature[select_field1])
+            deg2 = dms2deg(feature[select_field2])
+            new_feature = QgsFeature()
+            # Set geometry
+            new_feature.setGeometry(feature.geometry())
+            # Set attributes from sum_unique_values dictionary that we had computed
+            new_feature.setFields(new_fields)
+            attrib = feature.attributes()
+            # Fill new feature attribues from old
+            for i, attr in enumerate(attrib):
+                new_feature.setAttribute(i, attr)
+            # Add compute attributes
+            if select_field1 != select_field2:
+                new_feature.setAttribute(deg1_id, deg1)
+                new_feature.setAttribute(deg2_id, deg2)
+            elif select_field1 == select_field2:
+                new_feature.setAttribute(deg1_id, deg1)
 
             # Add a feature in the sink
-            sink.addFeature(feature, QgsFeatureSink.FastInsert)
+            sink.addFeature(new_feature, QgsFeatureSink.FastInsert)
 
             # Update the progress bar
             feedback.setProgress(int(current * total))

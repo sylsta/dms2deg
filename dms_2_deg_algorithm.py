@@ -88,17 +88,17 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
         self.addParameter(
             QgsProcessingParameterFeatureSink(
                 self.OUTPUT,
-                self.tr('Output layer')
+                self.tr('Output layer to deg')
             )
         )
 
         self.addParameter(QgsProcessingParameterField(self.FIELD1,
-                                                      self.tr('Text attribute to convert to float'),
+                                                      self.tr('DMS attribute to convert to degree'),
                                                       parentLayerParameterName='INPUT',
                                                       type=QgsProcessingParameterField.String
                                                       ))
         self.addParameter(QgsProcessingParameterField(self.FIELD2,
-                                                      self.tr('Text attribute to convert to float'),
+                                                      self.tr('DMS attribute to convert to degree'),
                                                       parentLayerParameterName='INPUT',
                                                       type=QgsProcessingParameterField.String
                                                       ))

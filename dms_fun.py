@@ -32,9 +32,14 @@ __revision__ = '$Format:%H$'
 
 
 def dms2deg(dms):
-    dmss = dms.split()
-    return float(dmss[0]) + float(dmss[1]) / 60 + float(dmss[2]) / 3600
-
+    if dms.find('°') >= 1:
+        dmst = dms.split('°')
+        ms = dmst[1].split('′')
+        deg = float(dmst[0]) + float(ms[0]) / 60 + float(ms[1].rstrip('″')) / 3600
+    else:
+        dmss = dms.split()
+        deg = float(dmss[0]) + float(dmss[1]) / 60 + float(dmss[2]) / 3600
+    return deg
 
 def deg2dms(deg):
     d = int(deg)

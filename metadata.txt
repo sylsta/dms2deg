@@ -10,7 +10,7 @@ version=0.1
 author=Ivan Lebedev
 email=lebedev77@gmail.com
 
-about=This plugin converts DMS to degree
+about=The plugin converts one or two columns containing angular values in DMS format to the degree format DOUBLE. Example dms = 81°45′44.97″ => degree=81.76249166666666
 
 tracker=https://github.com/inouterer/deg2dms
 repository=https://github.com/inouterer/deg2dms

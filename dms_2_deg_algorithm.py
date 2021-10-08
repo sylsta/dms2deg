@@ -193,7 +193,7 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
         lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Converts DMS to degree'
+        return 'Convert DMS to degree'
 
     def displayName(self):
         """
@@ -217,7 +217,7 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
         contain lowercase alphanumeric characters only and no spaces or other
         formatting characters.
         """
-        return 'Vector table'
+        return ''
 
     def tr(self, string):
         return QCoreApplication.translate('Processing', string)

@@ -23,7 +23,7 @@
 """
 
 __author__ = 'Ivan Lebedev'
-__date__ = '2021-10-07'
+__date__ = '2021-11-09'
 __copyright__ = '(C) 2021 by Ivan Lebedev'
 
 # This will get replaced with a git SHA1 when you do a git archive
@@ -37,11 +37,16 @@ from qgis.core import (QgsProcessing,
                        QgsProcessingParameterFeatureSource,
                        QgsProcessingParameterFeatureSink,
                        QgsProcessingParameterField,
+                       QgsProcessingLayerPostProcessorInterface,
                        QgsField,
                        QgsMessageLog,
                        QgsFeature)
 from .dms_fun import dms2deg
 
+# Icons
+import os
+import inspect
+from qgis.PyQt.QtGui import QIcon
 
 class Dms2degAlgorithm(QgsProcessingAlgorithm):
     """
@@ -78,7 +83,7 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
             QgsProcessingParameterFeatureSource(
                 self.INPUT,
                 self.tr('Input layer'),
-                [QgsProcessing.TypeVectorAnyGeometry]
+                [QgsProcessing.TypeMapLayer]
             )
         )
 
@@ -177,6 +182,16 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
             # Update the progress bar
             feedback.setProgress(int(current * total))
 
+        # Take input layer name    
+        source_layer = self.parameterAsLayer(
+            parameters,
+            self.INPUT,
+            context)
+        global renamer
+        newname = '{}_to_Deg'.format(source_layer.name())
+        renamer = Renamer(newname)
+        context.layerToLoadOnCompletionDetails(dest_id).setPostProcessor(renamer)
+
         # Return the results of the algorithm. In this case our only result is
         # the feature sink which contains the processed features, but some
         # algorithms may return multiple feature sinks, calculated numeric
@@ -194,6 +209,12 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
         formatting characters.
         """
         return 'Convert DMS to degree'
+    
+    def icon(self):
+        # Icons
+        cmd_folder = os.path.split(inspect.getfile(inspect.currentframe()))[0]
+        icon = QIcon(os.path.join(os.path.join(cmd_folder, 'deg2dms.png')))
+        return icon
 
     def displayName(self):
         """
@@ -224,3 +245,11 @@ class Dms2degAlgorithm(QgsProcessingAlgorithm):
 
     def createInstance(self):
         return Dms2degAlgorithm()
+    
+class Renamer (QgsProcessingLayerPostProcessorInterface):
+    def __init__(self, layer_name):
+        self.name = layer_name
+        super().__init__()
+        
+    def postProcessLayer(self, layer, context, feedback):
+        layer.setName(self.name)

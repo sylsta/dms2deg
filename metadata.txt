@@ -6,7 +6,7 @@
 name=DMS to degree table converter
 qgisMinimumVersion=3.0
 description=This processing plugin converts DMS to degree in table
-version=0.1
+version=0.3
 author=Ivan Lebedev
 email=lebedev77@gmail.com
 
@@ -27,7 +27,7 @@ tags=python
 
 homepage=https://github.com/inouterer/deg2dms
 category=Analysis
-icon=icon.png
+icon=deg2dms.png
 # experimental flag
 experimental=False
 

@@ -6,7 +6,7 @@
 name=DMS to degree table converter
 qgisMinimumVersion=3.0
 description=This processing plugin converts DMS to degree in table
-version=0.3
+version=0.4
 author=Ivan Lebedev
 email=lebedev77@gmail.com
 

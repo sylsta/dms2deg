@@ -39,6 +39,8 @@ def dms2deg(dms):
     else:
         dmss = dms.split()
         deg = float(dmss[0]) + float(dmss[1]) / 60 + float(dmss[2]) / 3600
+    if dms[-1].upper() == "W" or dms[-1].upper() == "S":
+        deg = 0 - deg
     return deg
 
 def deg2dms(deg):
